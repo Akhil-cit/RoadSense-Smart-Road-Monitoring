@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RoadSense – Damage Map</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #map {
+            height: 90vh;
+            width: 100%;
+            display: none;
+        }
+        #warning {
+            margin-top: 40px;
+            font-size: 18px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<h2>RoadSense – Road Damage Visualization</h2>
+
+<div id="warning"></div>
+<div id="map"></div>
+
+<script>
+
+const GOOGLE_MAPS_API_KEY = ""; 
+
+
+if (!GOOGLE_MAPS_API_KEY) {
+    document.getElementById("warning").innerHTML =
+        "⚠ Google Maps API key not provided.<br>" +
+        "Map visualization is disabled for security reasons.";
+} else {
+    document.getElementById("map").style.display = "block";
+
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap`;
+    script.async = true;
+    document.head.appendChild(script);
+}
+
+async function initMap() {
+
+    const response = await fetch("report_0.json");
+    const data = await response.json();
+
+    const location = { lat: data.latitude, lng: data.longitude };
+
+    const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 15,
+        center: location
+    });
+
+    new google.maps.Marker({
+        position: location,
+        map: map,
+        title: "Road Damage Detected"
+    });
+}
+</script>
+
+</body>
+</html>
