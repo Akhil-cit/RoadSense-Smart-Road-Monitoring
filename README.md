@@ -81,16 +81,6 @@ RoadSense-Smart-Road-Monitoring/
 ├── README.md # Project documentation
 ├── .gitignore
 
-RoadSense-Smart-Road-Monitoring/
-│
-├── road_sense.cpp # Main detection logic (live camera)
-├── camera_test.cpp # Camera verification utility
-├── map.html # Google Maps visualization
-├── README.md # Project documentation
-├── .gitignore
-
-
-
 Generated files such as .exe and .json are excluded from version control.
 
 ---
@@ -112,6 +102,8 @@ Generated files such as .exe and .json are excluded from version control.
 ## 📍 Sample Damage Report (JSON)
 
 ```json
+
+
 {
   "damage_type": "Pothole",
   "severity": "High",
@@ -120,11 +112,12 @@ Generated files such as .exe and .json are excluded from version control.
   "status": "Pending"
 }
 
+```
 🗺️ Google Maps Integration
 
-Detected road damage is visualized as markers on Google Maps
+Detected road damage is visualized as markers on Google Maps.
 
-Map visualization works only if a valid API key is provided
+Map visualization works only if a valid API key is provided.
 
 If no API key is present:
 
@@ -132,7 +125,7 @@ Detection continues normally
 
 Map step is safely skipped
 
-This ensures security and GitHub-safe deployment
+This ensures security and GitHub-safe deployment.
 
 🔐 API Key & Security Considerations
 
