@@ -1,190 +1,116 @@
-# 🚦 RoadSense – Smart Road Damage Monitoring System
+RoadSense - Smart Road Monitoring System
 
-RoadSense is a real-time road damage detection system that uses a live camera feed and computer vision to automatically identify road surface issues such as potholes and cracks, generate geo-tagged reports, and visualize affected locations on Google Maps.
+RoadSense is a real-time, camera-based road damage detection system developed using OpenCV in C++.
+The system detects road surface damage such as potholes using a live camera feed and optionally visualizes detected locations on Google Maps.
 
-This project demonstrates how AI-assisted vision systems can improve road maintenance efficiency and transparency in smart cities.
-
----
-
-## 🎯 Problem Statement
-
-Road damage is often:
-- Detected late
-- Reported manually
-- Repaired without transparency
-- Costly due to delayed intervention
-
-There is no automated, scalable system that continuously monitors road conditions and provides actionable insights to authorities.
-
----
-
-## 💡 Proposed Solution
-
-RoadSense automates the detection and reporting process by:
-
-1. Capturing live road footage using a camera
-2. Detecting road surface damage using OpenCV
-3. Geo-tagging detected locations
-4. Generating structured damage reports (JSON)
-5. Visualizing damage locations on Google Maps
-6. Enabling future integration with civic authority workflows
-
----
-
-## ⚙️ System Workflow
-
-Live Camera Feed
-↓
-Image Processing (OpenCV)
-↓
-Road Damage Detection
-↓
-Geo-tagged JSON Report
-↓
-Google Maps Visualization
+This project is designed for hackathons with a focus on simplicity, real-world impact, and secure public submission.
 
 
----
+Problem Statement
 
-## 🚀 Features (Implemented – MVP)
+Road maintenance currently relies on manual inspection which is:
+- Time-consuming
+- Expensive
+- Prone to human error
 
-- Live camera-based road monitoring
-- Real-time damage detection using OpenCV
-- Noise reduction and edge-based analysis
-- Damage confidence scoring
-- Automatic JSON report generation
-- Google Maps visualization (API optional)
-- Secure design (no API keys in code)
-
----
-
-## 🛠️ Technologies Used
-
-### Core Stack
-- C++
-- OpenCV 4.5.5
-- HTML / JavaScript
-- JSON
-
-### Google Technologies
-- Google Maps JavaScript API (Visualization layer)
-
----
-
-## 📁 Project Structure
-
-RoadSense-Smart-Road-Monitoring/
-│
-├── road_sense.cpp # Main detection logic (live camera)
-├── camera_test.cpp # Camera verification utility
-├── map.html # Google Maps visualization
-├── README.md # Project documentation
-├── .gitignore
-
-Generated files such as .exe and .json are excluded from version control.
-
----
-
-## 🧠 Detection Algorithm (Overview)
-
-1. Capture frames from the live camera
-2. Focus on the lower half of the frame (road region)
-3. Convert frame to grayscale
-4. Apply Gaussian blur to remove noise
-5. Perform Canny edge detection
-6. Compute edge density as a damage score
-7. If score exceeds threshold:
-   - Damage is detected
-   - JSON report is generated
-
----
-
-## 📍 Sample Damage Report (JSON)
-
-```json
+There is a need for an automated, scalable, and real-time solution.
 
 
-{
-  "damage_type": "Pothole",
-  "severity": "High",
-  "latitude": 12.9716,
-  "longitude": 77.5946,
-  "status": "Pending"
-}
+Solution Overview
 
-```
-🗺️ Google Maps Integration
+RoadSense automates road damage detection by:
+- Using a live camera feed
+- Processing road regions using computer vision
+- Detecting anomalies like potholes
+- Assigning severity scores
+- Preparing location-based reports
+- Optionally visualizing detections on a map
 
-Detected road damage is visualized as markers on Google Maps.
 
-Map visualization works only if a valid API key is provided.
+System Workflow
 
-If no API key is present:
+1. Camera captures live video feed
+2. Bottom portion of the frame is selected as road region
+3. Image processing is applied (grayscale, blur, edge detection)
+4. Damage score is calculated
+5. If score exceeds threshold:
+   - Damage is confirmed
+   - Location data is prepared
+6. Map visualization runs only if API key is available
 
-Detection continues normally
 
-Map step is safely skipped
+Features
 
-This ensures security and GitHub-safe deployment.
+- Live camera-based detection
+- Real-time processing using OpenCV
+- Lightweight and fast execution
+- Simulated GPS coordinates for demo
+- Optional Google Maps visualization
+- No mandatory cloud or API dependency
+- Fully offline detection support
 
-🔐 API Key & Security Considerations
 
-No API keys are hardcoded
+Google Maps Integration (Optional)
 
-No sensitive data pushed to GitHub
+- Detected damage locations can be displayed as markers on Google Maps
+- Map visualization works only if a valid Google Maps API key is added
+- If no API key is provided:
+  - Detection continues normally
+  - Map step is skipped safely
+  - No errors or crashes occur
 
-API usage is optional and configurable
+This ensures the project is safe for GitHub and hackathon submissions.
 
-Suitable for public hackathon submissions
 
-▶️ How to Run the Project
-Compile the Code
+API Key & Security Considerations
 
-g++ road_sense.cpp -o road_sense ^
--I"C:\opencv-mingw\OpenCV-MinGW-Build-OpenCV-4.5.5-x64\include" ^
--L"C:\opencv-mingw\OpenCV-MinGW-Build-OpenCV-4.5.5-x64\x64\mingw\lib" ^
--lopencv_core455 -lopencv_imgproc455 -lopencv_highgui455 -lopencv_videoio455
+- No API keys are hardcoded in the source code
+- No sensitive credentials are committed to GitHub
+- Google Maps usage is optional and configurable
+- Suitable for public repositories and hackathon evaluations
 
-Run Live Detection
+
+How to Run the Project
+
+Step 1: Compile the Code
+
+Use the following command in PowerShell:
+
+g++ road_sense.cpp -o road_sense -I"C:\opencv-mingw\OpenCV-MinGW-Build-OpenCV-4.5.5-x64\include" -L"C:\opencv-mingw\OpenCV-MinGW-Build-OpenCV-4.5.5-x64\x64\mingw\lib" -lopencv_core455 -lopencv_imgproc455 -lopencv_highgui455 -lopencv_videoio455
+
+
+Step 2: Run Live Detection
+
+Run the executable:
+
 road_sense.exe
 
-Opens live camera
+This will:
+- Open the live camera
+- Detect road damage in real time
+- Display detection results
 
-Detects road damage
 
-Generates geo-tagged JSON report
+Step 3: Visualize on Map (Optional)
 
-Visualize on Map (Optional)
+- Open the file map.html in a browser
+- Add Google Maps API key only if available
+- If API key is not added, skip this step safely
 
-Open map.html in a browser.
 
-Add a Google Maps API key if available to visualize detected locations
+Why RoadSense is Hackathon-Ready
 
-🎥 Demo Explanation
+- Fully working end-to-end prototype
+- No paid services required
+- Easy to demonstrate and explain
+- Secure public GitHub submission
+- Strong real-world civic impact
 
-Live camera detection shown
 
-Real-time damage detection
+Future Enhancements
 
-Automatic report generation
-
-Map-based visualization
-
-End-to-end system flow explanation
-
-🔮 Future Enhancements
-
-Vertex AI model for advanced damage classification
-
-Firebase/Firestore for cloud-based reporting
-
-Automatic email alerts to authorities
-
-Repair status tracking dashboard
-
-Mobile app integration
-
-🏁 Conclusion
-
-RoadSense demonstrates a practical and scalable approach to smart road monitoring using computer vision and Google Maps.
-The system is modular, secure, and designed for real-world deployment in smart city environments.
+- AI-based pothole classification
+- Automatic email alerts to authorities
+- Cloud-based reporting dashboard
+- Mobile app integration
+- Vertex AI model training
