@@ -1,3 +1,5 @@
 *.exe
 *.json
+*.dll
+__pycache__/
 .env

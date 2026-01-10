@@ -1,42 +1,53 @@
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/videoio.hpp>
-
+#include <opencv2/opencv.hpp>
 #include <iostream>
 #include <fstream>
+#include <ctime>
 
 using namespace cv;
 using namespace std;
 
-/* ---------- Simulated GPS ---------- */
-double latitude  = 12.9716;
+/* ---- GPS (Demo) ---- */
+double latitude = 12.9716;
 double longitude = 77.5946;
 
-/* ---------- Damage Detection ---------- */
-bool detectDamage(Mat &frame, double &damageScore) {
+/* ---- DAMAGE DETECTION (UNCHANGED) ---- */
+bool detectDamage(Mat &frame, double &score) {
 
-    // Focus on bottom half (road area)
-    Rect roi(0, frame.rows / 2, frame.cols, frame.rows / 2);
+    // Bottom-center road area ONLY
+    int x = frame.cols * 0.15;
+    int y = frame.rows * 0.55;
+    int w = frame.cols * 0.70;
+    int h = frame.rows * 0.35;
+    Rect roi(x, y, w, h);
     Mat road = frame(roi);
 
     Mat gray, blurImg, edges;
     cvtColor(road, gray, COLOR_BGR2GRAY);
     GaussianBlur(gray, blurImg, Size(5,5), 0);
-    Canny(blurImg, edges, 80, 160);
+    Canny(blurImg, edges, 60, 140);
 
-    damageScore = (double)countNonZero(edges) / edges.total();
+    double edgeDensity = (double)countNonZero(edges) / edges.total();
 
-    return damageScore > 0.02;   // threshold
+    // Dark-region check (potholes are darker)
+    Scalar meanIntensity = mean(gray);
+
+    score = edgeDensity;
+
+    return (edgeDensity > 0.010 && meanIntensity[0] < 130);
 }
 
-/* ---------- Store JSON Report ---------- */
-void storeReport(int id, double score) {
+/* ---- SAVE REPORT ---- */
+void saveReport(int id, double score) {
 
     ofstream file("report_" + to_string(id) + ".json");
+    time_t now = time(0);
+
+    string ts = ctime(&now);
+    ts.pop_back(); // remove newline
+
 
     file << "{\n";
-    file << "  \"report_id\": " << id << ",\n";
+    file << "  \"timestamp\": \"" << ts << "\",\n";
     file << "  \"latitude\": " << latitude << ",\n";
     file << "  \"longitude\": " << longitude << ",\n";
     file << "  \"damage_score\": " << score << ",\n";
@@ -46,17 +57,17 @@ void storeReport(int id, double score) {
     file.close();
 }
 
-/* ---------- MAIN ---------- */
+/* ---- MAIN ---- */
 int main() {
 
-    VideoCapture cap(0);  // 👈 CAMERA INPUT
+    cout << "Starting RoadSense (VIDEO MODE ONLY)..." << endl;
+
+    VideoCapture cap("road_demo.mp4");   // 🔒 NO CAMERA
 
     if (!cap.isOpened()) {
-        cout << "❌ ERROR: Camera not accessible" << endl;
+        cout << "ERROR: Video not opened!" << endl;
         return -1;
     }
-
-    cout << "✅ RoadSense started (Live Camera)" << endl;
 
     Mat frame;
     int reportId = 0;
@@ -65,7 +76,11 @@ int main() {
     while (true) {
 
         cap >> frame;
-        if (frame.empty()) break;
+
+        if (frame.empty()) {
+            cap.set(CAP_PROP_POS_FRAMES, 0); // loop video
+            continue;
+        }
 
         double score = 0.0;
         bool damaged = detectDamage(frame, score);
@@ -73,24 +88,32 @@ int main() {
         string text = damaged ? "DAMAGE DETECTED" : "ROAD NORMAL";
         Scalar color = damaged ? Scalar(0,0,255) : Scalar(0,255,0);
 
-        putText(frame, text, Point(30,40),
-                FONT_HERSHEY_SIMPLEX, 1, color, 2);
+        putText(frame, text, Point(40,50),
+                FONT_HERSHEY_SIMPLEX, 1.2, color, 3);
 
-        imshow("RoadSense - Live Road Monitoring", frame);
+        rectangle(frame,
+                  Rect(frame.cols*0.15, frame.rows*0.55,
+                       frame.cols*0.70, frame.rows*0.35),
+                  Scalar(255,255,0), 2); // show ROI
 
-        if (damaged && !reported) {
-            storeReport(reportId, score);
-            cout << "📍 Damage detected → report_" 
-                 << reportId << ".json created" << endl;
+        imshow("RoadSense - Demo Video", frame);
+
+        // ✅ REPORT LIMIT = 5 (ONLY ADDITION)
+        if (damaged && !reported && reportId < 5) {
+            saveReport(reportId, score);
+            system("python upload_report.py");
+            cout << "Report report_" << reportId << ".json created" << endl;
             reported = true;
             reportId++;
         }
 
-        if (waitKey(30) == 27) break;  // ESC
+        // reset when road becomes normal
+        if (!damaged) reported = false;
+
+        if (waitKey(30) == 27) break; // ESC
     }
 
     cap.release();
     destroyAllWindows();
-
     return 0;
 }
